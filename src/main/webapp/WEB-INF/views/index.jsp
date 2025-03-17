@@ -6,7 +6,6 @@
 </head>
 <body>
     <p><%= request.getAttribute("movies") %></p>
-    <a href="${pageContext.request.contextPath}/hello">영화1</a>
-    <a href="${pageContext.request.contextPath}/hello2">영화2</a>
+    <p><%= request.getAttribute("recommendation")%></p>
 </body>
 </html>

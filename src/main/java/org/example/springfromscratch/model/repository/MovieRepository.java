@@ -1,0 +1,44 @@
+package org.example.springfromscratch.model.repository;
+
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.springfromscratch.model.dto.MovieDTO;
+import org.example.springfromscratch.model.dto.MovieParam;
+import org.example.springfromscratch.model.dto.MovieResponse;
+import org.springframework.stereotype.Repository;
+
+import java.net.URI;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.List;
+
+@Repository
+public class MovieRepository implements APIClientRepository{
+    final String url = "http://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json";
+
+    public List<MovieDTO> getMovies(MovieParam param) throws Exception {
+        final String key = dotenv.get("MOVIE_API_KEY");
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("%s?key=%s&targetDt=%s".formatted(url, key, param.targetDate())))
+                .GET()
+                .build();
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() == 200) {
+//            System.out.println(response.body());
+            MovieResponse movieResponse = new ObjectMapper().readValue(response.body(), MovieResponse.class);
+
+            return movieResponse.boxOfficeResult().dailyBoxOfficeList()
+                    .stream().map((v) -> new MovieDTO(
+                            Long.parseLong(v.rank()),
+                            v.movieCd(),
+                            v.movieNm(),
+                            v.openDt(),
+                            Long.parseLong(v.audiAcc())
+                    )).toList();
+//            return objectMapper.readValue(response.body(), MovieDTO.class);
+//            System.out.println(response.body());
+        }
+        throw new RuntimeException("Failed : HTTP error code : " + response.statusCode());
+    }
+}

@@ -1,7 +1,5 @@
 package org.example.springfromscratch.model.repository;
 
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.springfromscratch.model.dto.*;
 import org.springframework.stereotype.Repository;
 
@@ -22,6 +20,9 @@ public class MovieRepository implements APIClientRepository{
                 .build();
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         if (response.statusCode() == 200) {
+
+//            System.out.println(response.body());
+//            System.out.println();
             return response.body();
         }
         throw new RuntimeException("Failed : HTTP error code : " + response.statusCode());
